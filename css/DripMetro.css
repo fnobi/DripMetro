@@ -75,7 +75,7 @@ article, aside, details, figcaption, figure, footer, header, hgroup, menu, nav, 
 }
 /* line 13, ../src/sass/components/_form_bpm.scss */
 #form-bpm #num-bpm {
-  font-size: 30px;
+  font-size: 26px;
   display: inline-block;
   text-align: center;
   border: none 0px white;
@@ -83,5 +83,5 @@ article, aside, details, figcaption, figure, footer, header, hgroup, menu, nav, 
 }
 /* line 23, ../src/sass/components/_form_bpm.scss */
 #form-bpm button {
-  font-size: 30px;
+  font-size: 26px;
 }
