@@ -20,8 +20,8 @@ function init () {
     });
 
     // init events
-    ticker.on('tick', function () {
-        dripView.draw();
+    ticker.on('tick', function (e) {
+        dripView.draw(e);
     });
 
     ticker.start();

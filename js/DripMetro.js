@@ -696,10 +696,30 @@ DripView.prototype.draw = function (e) {
     var ctx = this.ctx;
     var width = this.width;
     var height = this.height;
+    var clock = this.clock;
+
+    var curveWidth = width * 0.1;
+
+    var time = e.time;
+    var value = (time % clock) / clock;
+
+    var dropHeight = value * height * 0.5;
 
     this.clear();
     
-    ctx.fillRect(0, 0, width, height * 0.1);
+    ctx.beginPath();
+    ctx.moveTo(0, 0);
+    ctx.bezierCurveTo(
+        width * 0.5,              0,
+        width * 0.5 - curveWidth, dropHeight,
+        width * 0.5,              dropHeight
+    );
+    ctx.bezierCurveTo(
+        width * 0.5 + curveWidth, dropHeight,
+        width * 0.5,              0,
+        width * 1,                0
+    );
+    ctx.fill();
 };
 
 function init () {
@@ -724,8 +744,8 @@ function init () {
     });
 
     // init events
-    ticker.on('tick', function () {
-        dripView.draw();
+    ticker.on('tick', function (e) {
+        dripView.draw(e);
     });
 
     ticker.start();
