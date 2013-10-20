@@ -871,6 +871,12 @@ BPMMeter.prototype.initListeners = function () {
         // init metro tones
         var metroTones = new MetroTones();
 
+        // dev: click sound
+        document.getElementById('canvas-drip').addEventListener('click', function () {
+            metroTones.play();
+        }, false);
+
+
         // init winstatus
         var winstatus = new Winstatus();
         winstatus.on('resize', function () {
