@@ -71,7 +71,7 @@ article, aside, details, figcaption, figure, footer, header, hgroup, menu, nav, 
   bottom: 0px;
   width: 100%;
   text-align: center;
-  margin: 1em 0em;
+  margin: 0.5em 0em;
 }
 /* line 13, ../src/sass/components/_form_bpm.scss */
 #form-bpm #num-bpm {
