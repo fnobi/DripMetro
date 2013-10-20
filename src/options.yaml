@@ -1,7 +1,6 @@
 name: DripMetro
 
-url:
-  
+url: http://dripmetro.fnobi.com/
 
 repository:
   git://githubl.com/fnobi/DripMetro.git

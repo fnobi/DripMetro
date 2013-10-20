@@ -297,6 +297,449 @@
   shivDocument(document);
 
 }(this, document));
-var DripMetro = function () {
+var EventEmitter = new Function ();
 
+EventEmitter.prototype.initEventEmitter = function () {
+    this._listeners = {};
 };
+
+EventEmitter.prototype.initEventEmitterType = function (type) {
+    if (!type) {
+        return;
+    }
+    this._listeners[type] = [];
+};
+
+EventEmitter.prototype.hasEventListener = function (type, fn) {
+    if (!this.listener) {
+        return false;
+    }
+
+    if (type && !this.listener[type]) {
+        return false;
+    }
+
+    return true;
+};
+
+EventEmitter.prototype.addListener = function (type, fn) {
+    if (!this._listeners) {
+        this.initEventEmitter();
+    }
+    if (!this._listeners[type]) {
+        this.initEventEmitterType(type);
+    }
+    this._listeners[type].push(fn);
+
+    this.emit('newListener', type, fn);
+};
+
+EventEmitter.prototype.on = EventEmitter.prototype.addListener;
+
+EventEmitter.prototype.once = function (type, fn) {
+    fn._onceListener = true;
+    this.addListener(type, fn);
+};
+
+EventEmitter.prototype.removeListener = function (type, fn) {
+    if (!this._listeners) {
+        return;
+    }
+    if (!this._listeners[type]) {
+        return;
+    }
+    if (!this._listeners[type].forEach) {
+        return;
+    }
+
+    if (!type) {
+        this.initEventEmitter();
+        this.emit('removeListener', type, fn);
+        return;
+    }
+    if (!fn) {
+        this.initEventEmitterType(type);
+        this.emit('removeListener', type, fn);
+        return;
+    }
+
+    var self = this;
+    this._listeners[type].forEach(function (listener, index) {
+        if (listener === fn) {
+            self._listeners[type].splice(index, 1);
+        }
+    });
+    this.emit('removeListener', type, fn);
+};
+
+EventEmitter.prototype.emit = function (type) {
+    if (!this._listeners) {
+        return;
+    }
+    if (!this._listeners[type]) {
+        return;
+    }
+    if (!this._listeners[type].forEach) {
+        return;
+    }
+
+    var self = this,
+        args = [].slice.call(arguments, 1);
+
+    this._listeners[type].forEach(function (listener) {
+        listener.apply(self, args);
+        if (listener._onceListener) {
+            self.removeListener(type, listener);
+        }
+    });
+};
+
+EventEmitter.prototype.listeners = function (type) {
+    if (!type) {
+        return undefined;
+    }
+    return this._listeners[type];
+};
+
+// jquery style alias
+EventEmitter.prototype.trigger = EventEmitter.prototype.emit;
+EventEmitter.prototype.off = EventEmitter.prototype.removeListener;
+var inherits = function (Child, Parent) {
+    for (var i in Parent.prototype) {
+        if (Child.prototype[i]) {
+            continue;
+        }
+        Child.prototype[i] = Parent.prototype[i];
+    }
+};
+var Ticker = function (opts) {
+    this.clock = opts.clock || 20;
+
+    this.startTime = null;
+
+    this.periods = {};
+
+    this.initLoop();
+};
+inherits(Ticker, EventEmitter);
+
+Ticker.prototype.initLoop = function () {
+    this.loop = null;
+};
+
+Ticker.prototype.start = function () {
+    var self = this;
+    
+    this.startTime = +(new Date());
+
+    this.loop = setInterval(function () {
+        self.processTick();
+    }, this.clock);
+};
+
+Ticker.prototype.stop = function () {
+    if (!this.loop) {
+        return;
+    }
+    clearInterval(this.loop);
+    this.initLoop();
+};
+
+Ticker.prototype.processTick = function () {
+    var clock = this.clock;
+    var periods = this.periods;
+    var currentTime = +(new Date());
+
+    this.emit('tick', {
+        time: currentTime - this.startTime,
+        periods: periods
+    });
+
+    var value, name, duration;
+    for (name in periods) {
+        duration = periods[name].duration;
+        value = (currentTime - periods[name].startTime) / duration;
+        periods[name].value = value;
+    }
+
+    for (name in periods) {
+        if (periods[name].value >= 1) {
+            this.emit('period:' + name);
+            periods[name].value -= 1;
+        }
+    }
+};
+
+Ticker.prototype.addPeriod = function (name, duration) {
+    this.periods[name] = {
+        duration: duration
+    };
+
+    this.initPeriod(name);
+};
+
+Ticker.prototype.initPeriod = function (name) {
+    if (!this.periods[name]) {
+        return;
+    }
+
+    this.periods[name].startTime = +(new Date());
+    this.periods[name].value = 0;
+};
+
+Ticker.prototype.emit = function (type) {
+    EventEmitter.prototype.emit.apply(this, arguments);
+};
+
+var LightView = function (el) {
+    this.el = el;
+};
+
+LightView.prototype.on = function (type, fn) {
+    var el = this.el;
+
+    if (el.addEventListener) {
+        el.addEventListener(type, fn, false);
+    } else if (el.attachEvent) {
+        el.attachEvent('on' + type, fn);
+    }
+};
+
+var EventEmitter = new Function ();
+
+EventEmitter.prototype.initEventEmitter = function () {
+    this._listeners = {};
+};
+
+EventEmitter.prototype.initEventEmitterType = function (type) {
+    if (!type) {
+        return;
+    }
+    this._listeners[type] = [];
+};
+
+EventEmitter.prototype.hasEventListener = function (type, fn) {
+    if (!this.listener) {
+        return false;
+    }
+
+    if (type && !this.listener[type]) {
+        return false;
+    }
+
+    return true;
+};
+
+EventEmitter.prototype.addListener = function (type, fn) {
+    if (!this._listeners) {
+        this.initEventEmitter();
+    }
+    if (!this._listeners[type]) {
+        this.initEventEmitterType(type);
+    }
+    this._listeners[type].push(fn);
+
+    this.emit('newListener', type, fn);
+};
+
+EventEmitter.prototype.on = EventEmitter.prototype.addListener;
+
+EventEmitter.prototype.once = function (type, fn) {
+    fn._onceListener = true;
+    this.addListener(type, fn);
+};
+
+EventEmitter.prototype.removeListener = function (type, fn) {
+    if (!this._listeners) {
+        return;
+    }
+    if (!this._listeners[type]) {
+        return;
+    }
+    if (!this._listeners[type].forEach) {
+        return;
+    }
+
+    if (!type) {
+        this.initEventEmitter();
+        this.emit('removeListener', type, fn);
+        return;
+    }
+    if (!fn) {
+        this.initEventEmitterType(type);
+        this.emit('removeListener', type, fn);
+        return;
+    }
+
+    var self = this;
+    this._listeners[type].forEach(function (listener, index) {
+        if (listener === fn) {
+            self._listeners[type].splice(index, 1);
+        }
+    });
+    this.emit('removeListener', type, fn);
+};
+
+EventEmitter.prototype.emit = function (type) {
+    if (!this._listeners) {
+        return;
+    }
+    if (!this._listeners[type]) {
+        return;
+    }
+    if (!this._listeners[type].forEach) {
+        return;
+    }
+
+    var self = this,
+        args = [].slice.call(arguments, 1);
+
+    this._listeners[type].forEach(function (listener) {
+        listener.apply(self, args);
+        if (listener._onceListener) {
+            self.removeListener(type, listener);
+        }
+    });
+};
+
+EventEmitter.prototype.listeners = function (type) {
+    if (!type) {
+        return undefined;
+    }
+    return this._listeners[type];
+};
+
+// jquery style alias
+EventEmitter.prototype.trigger = EventEmitter.prototype.emit;
+EventEmitter.prototype.off = EventEmitter.prototype.removeListener;
+var inherits = function (Child, Parent) {
+    for (var i in Parent.prototype) {
+        if (Child.prototype[i]) {
+            continue;
+        }
+        Child.prototype[i] = Parent.prototype[i];
+    }
+};
+(function (exports) {
+    var Winstatus = function (opts) {
+        this.windowWidth = 0;
+        this.windowHeight = 0;
+        this.scrollX = 0;
+        this.scrollY = 0;
+
+        this.updateWindowSize();
+        this.updateScroll();
+
+        this.initListeners();
+    };
+    inherits(Winstatus, EventEmitter);
+
+    Winstatus.prototype.initListeners = function () {
+        var self = this;
+        var windowView = new LightView(window);
+        var documentView = new LightView(document);
+
+        windowView.on('load', function () {
+            self.updateWindowSize();
+            self.updateScroll();
+        });
+
+        windowView.on('resize', function () {
+            self.updateWindowSize();
+        });
+        windowView.on('scroll', function () {
+            self.updateScroll();
+        });
+        documentView.on('scroll', function () {
+            self.updateScroll();
+        });
+    };
+
+    Winstatus.prototype.updateWindowSize = function () {
+        this.windowWidth = window.innerWidth || document.body.clientWidth || 0;
+        this.windowHeight = window.innerHeight || document.body.clientHeight || 0;
+        this.emit('resize', this);
+        this.emit('change', this);
+    };
+
+    Winstatus.prototype.updateScroll = function () {
+        this.scrollX = (document.body.scrollLeft || document.documentElement.scrollLeft || window.scrollLeft || 0);
+        this.scrollY = (document.body.scrollTop || document.documentElement.scrollTop || window.scrollTop || 0);
+        this.emit('scroll', this);
+        this.emit('change', this);
+    };
+
+    exports.Winstatus = Winstatus;
+})(window);
+
+var DripView = function (opts) {
+    this.el = opts.el || document.createElement('canvas');
+    this.clock = opts.clock || 60;
+
+    this.width = 0;
+    this.height = 0;
+
+    this.ctx = this.el.getContext('2d');
+};
+
+DripView.prototype.resizeCanvas = function (w, h) {
+    var el = this.el;
+    el.width = this.width = w;
+    el.height = this.height = h;
+};
+
+DripView.prototype.clear = function () {
+    this.el.width = this.width;
+};
+
+DripView.prototype.draw = function (e) {
+    var ctx = this.ctx;
+    var width = this.width;
+    var height = this.height;
+
+    this.clear();
+    
+    ctx.fillRect(0, 0, width, height * 0.1);
+};
+
+function init () {
+    var bpm = 60;
+    var clock = (bpm / 60) * 1000;
+
+    // init dripview
+    var dripView = new DripView({
+        el: document.getElementById('canvas-drip'),
+        clock: clock
+    });
+
+    // init winstatus
+    var winstatus = new Winstatus();
+    winstatus.on('resize', function () {
+        dripView.resizeCanvas(winstatus.windowWidth, winstatus.windowHeight);
+    });
+
+    // init ticker
+    var ticker = new Ticker({
+        clock: 20
+    });
+
+    // init events
+    ticker.on('tick', function () {
+        dripView.draw();
+    });
+
+    ticker.start();
+}
+
+window.addEventListener('DOMContentLoaded', init, false);
+
+
+
+
+
+
+
+
+
+
+
