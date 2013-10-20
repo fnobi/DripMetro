@@ -1,11 +1,20 @@
 var DripView = function (opts) {
     this.el = opts.el || document.createElement('canvas');
-    this.clock = opts.clock || 60;
+    this.bpm = opts.bpm || 60;
 
     this.width = 0;
     this.height = 0;
 
     this.ctx = this.el.getContext('2d');
+
+    this.updateBPM(this.bpm);
+};
+
+DripView.prototype.updateBPM = function (bpm) {
+    var clock = (60 / bpm) * 1000;
+
+    this.bpm = bpm;
+    this.clock = clock;
 };
 
 DripView.prototype.resizeCanvas = function (w, h) {

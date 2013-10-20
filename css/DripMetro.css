@@ -62,3 +62,18 @@ a img {
 article, aside, details, figcaption, figure, footer, header, hgroup, menu, nav, section, summary {
   display: block;
 }
+
+/* line 1, ../src/sass/components/_form_bpm.scss */
+#form-bpm {
+  position: fixed;
+  left: 0px;
+  bottom: 0px;
+  width: 100%;
+  text-align: center;
+}
+
+/* line 9, ../src/sass/components/_form_bpm.scss */
+#input-bpm {
+  display: inline-block;
+  -webkit-appearance: none;
+}

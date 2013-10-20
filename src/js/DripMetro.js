@@ -1,41 +1,41 @@
-function init () {
-    var bpm = 60;
-    var clock = (bpm / 60) * 1000;
+(function () {
+    function init () {
+        // init bpm meter
+        var bpmMeter = new BPMMeter({
+            inputElement: document.getElementById('input-bpm'),
+            downBtnElement: document.getElementById('btn-bpmdown'),
+            upBtnElement: document.getElementById('btn-bpmup')
+        });
 
-    // init dripview
-    var dripView = new DripView({
-        el: document.getElementById('canvas-drip'),
-        clock: clock
-    });
+        // init dripview
+        var dripView = new DripView({
+            el: document.getElementById('canvas-drip')
+        });
 
-    // init winstatus
-    var winstatus = new Winstatus();
-    winstatus.on('resize', function () {
-        dripView.resizeCanvas(winstatus.windowWidth, winstatus.windowHeight);
-    });
+        // init winstatus
+        var winstatus = new Winstatus();
+        winstatus.on('resize', function () {
+            dripView.resizeCanvas(winstatus.windowWidth, winstatus.windowHeight);
+        });
 
-    // init ticker
-    var ticker = new Ticker({
-        clock: 20
-    });
+        // init ticker
+        var ticker = new Ticker({
+            clock: 20
+        });
 
-    // init events
-    ticker.on('tick', function (e) {
-        dripView.draw(e);
-    });
+        // init events
+        ticker.on('tick', function (e) {
+            dripView.draw(e);
+        });
 
-    ticker.start();
-}
+        bpmMeter.on('change', function (bpm) {
+            dripView.updateBPM(bpm);
+        });
 
-window.addEventListener('DOMContentLoaded', init, false);
+        // start
+        bpmMeter.setBPM(60);
+        ticker.start();
+    }
 
-
-
-
-
-
-
-
-
-
-
+    window.addEventListener('DOMContentLoaded', init, false);
+})();

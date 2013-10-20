@@ -674,12 +674,21 @@ var inherits = function (Child, Parent) {
 
 var DripView = function (opts) {
     this.el = opts.el || document.createElement('canvas');
-    this.clock = opts.clock || 60;
+    this.bpm = opts.bpm || 60;
 
     this.width = 0;
     this.height = 0;
 
     this.ctx = this.el.getContext('2d');
+
+    this.updateBPM(this.bpm);
+};
+
+DripView.prototype.updateBPM = function (bpm) {
+    var clock = (60 / bpm) * 1000;
+
+    this.bpm = bpm;
+    this.clock = clock;
 };
 
 DripView.prototype.resizeCanvas = function (w, h) {
@@ -722,44 +731,79 @@ DripView.prototype.draw = function (e) {
     ctx.fill();
 };
 
-function init () {
-    var bpm = 60;
-    var clock = (bpm / 60) * 1000;
+var BPMMeter = function (opts) {
+    this.inputElement = opts.inputElement;
+    this.downBtnElement = opts.downBtnElement;
+    this.upBtnElement = opts.upBtnElement;
 
-    // init dripview
-    var dripView = new DripView({
-        el: document.getElementById('canvas-drip'),
-        clock: clock
-    });
+    this.initListeners();
+};
+inherits(BPMMeter, EventEmitter);
 
-    // init winstatus
-    var winstatus = new Winstatus();
-    winstatus.on('resize', function () {
-        dripView.resizeCanvas(winstatus.windowWidth, winstatus.windowHeight);
-    });
+BPMMeter.prototype.setBPM = function (bpm) {
+    var inputElement = this.inputElement;
+    inputElement.value = bpm;
 
-    // init ticker
-    var ticker = new Ticker({
-        clock: 20
-    });
+    this.bpm = bpm;
+    this.emit('change', bpm);
+};
 
-    // init events
-    ticker.on('tick', function (e) {
-        dripView.draw(e);
-    });
+BPMMeter.prototype.initListeners = function () {
+    var self = this;
+    
+    var inputElement = this.inputElement;
+    var downBtnElement = this.downBtnElement;
+    var upBtnElement = this.upBtnElement;
 
-    ticker.start();
-}
+    inputElement.addEventListener('change', function () {
+        self.setBPM(inputElement.value);
+    }, false);
+    downBtnElement.addEventListener('click', function () {
+        self.setBPM(Number(inputElement.value) - 1);
+    }, false);
+    upBtnElement.addEventListener('click', function () {
+        self.setBPM(Number(inputElement.value) + 1);
+    }, false);
+};
 
-window.addEventListener('DOMContentLoaded', init, false);
+(function () {
+    function init () {
+        // init bpm meter
+        var bpmMeter = new BPMMeter({
+            inputElement: document.getElementById('input-bpm'),
+            downBtnElement: document.getElementById('btn-bpmdown'),
+            upBtnElement: document.getElementById('btn-bpmup')
+        });
 
+        // init dripview
+        var dripView = new DripView({
+            el: document.getElementById('canvas-drip')
+        });
 
+        // init winstatus
+        var winstatus = new Winstatus();
+        winstatus.on('resize', function () {
+            dripView.resizeCanvas(winstatus.windowWidth, winstatus.windowHeight);
+        });
 
+        // init ticker
+        var ticker = new Ticker({
+            clock: 20
+        });
 
+        // init events
+        ticker.on('tick', function (e) {
+            dripView.draw(e);
+        });
 
+        bpmMeter.on('change', function (bpm) {
+            dripView.updateBPM(bpm);
+        });
 
+        // start
+        bpmMeter.setBPM(60);
+        ticker.start();
+    }
 
-
-
-
-
+    window.addEventListener('DOMContentLoaded', init, false);
+})();
