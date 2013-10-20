@@ -672,6 +672,83 @@ var inherits = function (Child, Parent) {
     exports.Winstatus = Winstatus;
 })(window);
 
+var async = function (fns) {
+    (function exec (index) {
+        if (!fns[index]) {
+            return;
+        }
+        fns[index](function () {
+            exec(index + 1);
+        });
+    })(0);
+};
+
+var getAudioContext = function () {
+    try {
+        var AudioContext = window.AudioContext || window.webkitAudioContext;
+        return AudioContext;
+    } catch(e) {
+        alert('Web Audio API is not supported in this browser');
+    }
+};
+
+var MetroTones = function () {
+    var prepared = false;
+    this.prepare();
+};
+
+MetroTones.prototype.prepare = function () {
+    var self = this;
+
+    var AudioContext = getAudioContext();
+    var context = new AudioContext();
+    var buffer = null;
+
+    var url = '/sounds/tap.wav';
+
+    var request;
+
+    async([function (next) {
+        request = new XMLHttpRequest();
+        request.open('GET', url, true);
+        request.responseType = 'arraybuffer';
+        
+        request.send();
+        request.onload = next;
+    }, function (next) {
+        context.decodeAudioData(request.response, function (buf) {
+            buffer = buf;
+            next();
+        }, function (e) {
+            alert(e);
+        });
+    }, function () {
+        self.context = context;
+        self.buffer = buffer;
+        self.prepared = true;
+    }]);
+};
+
+MetroTones.prototype.play = function () {
+    if (!this.prepared) {
+        return;
+    }
+
+    var context = this.context;
+    var buffer = this.buffer;
+
+    var source = context.createBufferSource();
+    source.buffer = buffer;
+    source.connect(context.destination);
+    source.noteOn(0);
+};
+
+
+
+
+
+
+
 var DripView = function (opts) {
     this.el = opts.el || document.createElement('canvas');
     this.bpm = opts.bpm || 60;
@@ -679,10 +756,13 @@ var DripView = function (opts) {
     this.width = 0;
     this.height = 0;
 
+    this.prevValue = 0;
+
     this.ctx = this.el.getContext('2d');
 
     this.updateBPM(this.bpm);
 };
+inherits(DripView, EventEmitter);
 
 DripView.prototype.updateBPM = function (bpm) {
     var clock = (60 / bpm) * 1000;
@@ -712,6 +792,8 @@ DripView.prototype.draw = function (e) {
     var time = e.time;
     var value = (time % clock) / clock;
 
+    var onBeat = value < this.prevValue;
+
     var dropHeight = value * height * 0.5;
 
     this.clear();
@@ -729,6 +811,12 @@ DripView.prototype.draw = function (e) {
         width * 1,                0
     );
     ctx.fill();
+
+    this.prevValue = value;
+
+    if (onBeat) {
+        this.emit('beat');
+    }
 };
 
 var BPMMeter = function (opts) {
@@ -780,6 +868,9 @@ BPMMeter.prototype.initListeners = function () {
             el: document.getElementById('canvas-drip')
         });
 
+        // init metro tones
+        var metroTones = new MetroTones();
+
         // init winstatus
         var winstatus = new Winstatus();
         winstatus.on('resize', function () {
@@ -798,6 +889,10 @@ BPMMeter.prototype.initListeners = function () {
 
         bpmMeter.on('change', function (bpm) {
             dripView.updateBPM(bpm);
+        });
+
+        dripView.on('beat', function () {
+            metroTones.play();
         });
 
         // start

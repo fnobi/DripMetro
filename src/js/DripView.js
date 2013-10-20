@@ -5,10 +5,13 @@ var DripView = function (opts) {
     this.width = 0;
     this.height = 0;
 
+    this.prevValue = 0;
+
     this.ctx = this.el.getContext('2d');
 
     this.updateBPM(this.bpm);
 };
+inherits(DripView, EventEmitter);
 
 DripView.prototype.updateBPM = function (bpm) {
     var clock = (60 / bpm) * 1000;
@@ -38,6 +41,8 @@ DripView.prototype.draw = function (e) {
     var time = e.time;
     var value = (time % clock) / clock;
 
+    var onBeat = value < this.prevValue;
+
     var dropHeight = value * height * 0.5;
 
     this.clear();
@@ -55,4 +60,10 @@ DripView.prototype.draw = function (e) {
         width * 1,                0
     );
     ctx.fill();
+
+    this.prevValue = value;
+
+    if (onBeat) {
+        this.emit('beat');
+    }
 };

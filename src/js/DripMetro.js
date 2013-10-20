@@ -12,6 +12,9 @@
             el: document.getElementById('canvas-drip')
         });
 
+        // init metro tones
+        var metroTones = new MetroTones();
+
         // init winstatus
         var winstatus = new Winstatus();
         winstatus.on('resize', function () {
@@ -30,6 +33,10 @@
 
         bpmMeter.on('change', function (bpm) {
             dripView.updateBPM(bpm);
+        });
+
+        dripView.on('beat', function () {
+            metroTones.play();
         });
 
         // start
