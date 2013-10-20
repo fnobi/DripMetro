@@ -40,6 +40,8 @@ MetroTones.prototype.play = function (speed) {
         return;
     }
 
+    speed = speed || 1.0;
+
     var context = this.context;
     var buffer = this.buffer;
 

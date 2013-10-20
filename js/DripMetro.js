@@ -734,6 +734,8 @@ MetroTones.prototype.play = function (speed) {
         return;
     }
 
+    speed = speed || 1.0;
+
     var context = this.context;
     var buffer = this.buffer;
 
@@ -831,7 +833,7 @@ inherits(BPMMeter, EventEmitter);
 
 BPMMeter.prototype.setBPM = function (bpm) {
     var inputElement = this.inputElement;
-    inputElement.value = bpm;
+    inputElement.innerHTML = bpm;
 
     this.bpm = bpm;
     this.emit('change', bpm);
@@ -844,39 +846,89 @@ BPMMeter.prototype.initListeners = function () {
     var downBtnElement = this.downBtnElement;
     var upBtnElement = this.upBtnElement;
 
-    inputElement.addEventListener('change', function () {
-        self.setBPM(inputElement.value);
+
+    function bpmDown (e) {
+        e.preventDefault();
+        self.setBPM(Number(inputElement.innerHTML) - 1);
+    }
+
+    function bpmUp (e) {
+        e.preventDefault();
+        self.setBPM(Number(inputElement.innerHTML) + 1);
+    }
+
+    downBtnElement.addEventListener('touchstart', bpmDown, false);
+    upBtnElement.addEventListener('touchstart', bpmUp, false);
+    downBtnElement.addEventListener('touchmove', bpmDown, false);
+    upBtnElement.addEventListener('touchmove', bpmUp, false);
+
+
+    var mousedownFlag = false;
+    downBtnElement.addEventListener('mousedown', function (e) {
+        mousedownFlag = true;
+        bpmDown(e);
     }, false);
-    downBtnElement.addEventListener('click', function () {
-        self.setBPM(Number(inputElement.value) - 1);
+    upBtnElement.addEventListener('mousedown', function (e) {
+        mousedownFlag = true;
+        bpmUp(e);
     }, false);
-    upBtnElement.addEventListener('click', function () {
-        self.setBPM(Number(inputElement.value) + 1);
+
+    downBtnElement.addEventListener('mousemove', function (e) {
+        if (!mousedownFlag) {
+            return;
+        }
+        bpmDown(e);
     }, false);
+    upBtnElement.addEventListener('mousemove', function (e) {
+        if (!mousedownFlag) {
+            return;
+        }
+        bpmUp(e);
+    }, false);
+
+    downBtnElement.addEventListener('mouseup', function (e) {
+        mousedownFlag = false;
+    }, false);
+    upBtnElement.addEventListener('mouseup', function (e) {
+        mousedownFlag = false;
+    }, false);
+    downBtnElement.addEventListener('mouseout', function (e) {
+        mousedownFlag = false;
+    }, false);
+    upBtnElement.addEventListener('mouseout', function (e) {
+        mousedownFlag = false;
+    }, false);
+
 };
+
+
+
+
+
+
+
+
+
+
 
 (function () {
     function init () {
+        var viewerElement = document.getElementById('canvas-drip');
+
         // init bpm meter
         var bpmMeter = new BPMMeter({
-            inputElement: document.getElementById('input-bpm'),
+            inputElement: document.getElementById('num-bpm'),
             downBtnElement: document.getElementById('btn-bpmdown'),
             upBtnElement: document.getElementById('btn-bpmup')
         });
 
         // init dripview
         var dripView = new DripView({
-            el: document.getElementById('canvas-drip')
+            el: viewerElement
         });
 
         // init metro tones
         var metroTones = new MetroTones();
-
-        // dev: click sound
-        document.getElementById('canvas-drip').addEventListener('click', function () {
-            metroTones.play(1);
-        }, false);
-
 
         // init winstatus
         var winstatus = new Winstatus();
@@ -901,6 +953,10 @@ BPMMeter.prototype.initListeners = function () {
         dripView.on('beat', function () {
             metroTones.play(dripView.bpm / 60);
         });
+
+        viewerElement.addEventListener('click', function () {
+            metroTones.play();
+        }, false);
 
         // start
         bpmMeter.setBPM(60);

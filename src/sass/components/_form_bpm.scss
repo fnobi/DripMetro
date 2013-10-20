@@ -1,14 +1,24 @@
 #form-bpm {
+    $font_size: 50px;
+
     position: fixed;
     left: 0px;
     bottom: 0px;
     width: 100%;
     text-align: center;
     margin: 1em 0em;
-}
 
-#input-bpm {
-    display: inline-block;
-    text-align: center;
-    border: none 0px white;
+    #num-bpm {
+        font-size: $font_size;
+
+        display: inline-block;
+        text-align: center;
+        border: none 0px white;
+
+        padding: 0em 1em;
+    }
+
+    button {
+        font-size: $font_size; 
+    }
 }

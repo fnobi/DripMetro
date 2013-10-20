@@ -1,25 +1,21 @@
 (function () {
     function init () {
+        var viewerElement = document.getElementById('canvas-drip');
+
         // init bpm meter
         var bpmMeter = new BPMMeter({
-            inputElement: document.getElementById('input-bpm'),
+            inputElement: document.getElementById('num-bpm'),
             downBtnElement: document.getElementById('btn-bpmdown'),
             upBtnElement: document.getElementById('btn-bpmup')
         });
 
         // init dripview
         var dripView = new DripView({
-            el: document.getElementById('canvas-drip')
+            el: viewerElement
         });
 
         // init metro tones
         var metroTones = new MetroTones();
-
-        // dev: click sound
-        document.getElementById('canvas-drip').addEventListener('click', function () {
-            metroTones.play(1);
-        }, false);
-
 
         // init winstatus
         var winstatus = new Winstatus();
@@ -44,6 +40,10 @@
         dripView.on('beat', function () {
             metroTones.play(dripView.bpm / 60);
         });
+
+        viewerElement.addEventListener('click', function () {
+            metroTones.play();
+        }, false);
 
         // start
         bpmMeter.setBPM(60);

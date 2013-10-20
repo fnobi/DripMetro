@@ -72,10 +72,15 @@ article, aside, details, figcaption, figure, footer, header, hgroup, menu, nav, 
   text-align: center;
   margin: 1em 0em;
 }
-
-/* line 10, ../src/sass/components/_form_bpm.scss */
-#input-bpm {
+/* line 11, ../src/sass/components/_form_bpm.scss */
+#form-bpm #num-bpm {
+  font-size: 50px;
   display: inline-block;
   text-align: center;
   border: none 0px white;
+  padding: 0em 1em;
+}
+/* line 21, ../src/sass/components/_form_bpm.scss */
+#form-bpm button {
+  font-size: 50px;
 }
