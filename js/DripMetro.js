@@ -754,7 +754,7 @@ MetroTones.prototype.play = function (speed) {
 
 var DripView = function (opts) {
     this.el = opts.el || document.createElement('canvas');
-    this.bpm = opts.bpm || 60;
+    this.clock = opts.clock || 0;
 
     this.width = 0;
     this.height = 0;
@@ -763,14 +763,11 @@ var DripView = function (opts) {
 
     this.ctx = this.el.getContext('2d');
 
-    this.updateBPM(this.bpm);
+    this.updateClock(this.clock);
 };
 inherits(DripView, EventEmitter);
 
-DripView.prototype.updateBPM = function (bpm) {
-    var clock = (60 / bpm) * 1000;
-
-    this.bpm = bpm;
+DripView.prototype.updateClock = function (clock) {
     this.clock = clock;
 };
 
@@ -795,8 +792,6 @@ DripView.prototype.draw = function (e) {
     var time = e.time;
     var value = (time % clock) / clock;
 
-    var onBeat = value < this.prevValue;
-
     var dropHeight = value * height * 0.5;
 
     this.clear();
@@ -816,14 +811,10 @@ DripView.prototype.draw = function (e) {
     ctx.fill();
 
     this.prevValue = value;
-
-    if (onBeat) {
-        this.emit('beat');
-    }
 };
 
 var BPMMeter = function (opts) {
-    this.inputElement = opts.inputElement;
+    this.numElement = opts.numElement;
     this.downBtnElement = opts.downBtnElement;
     this.upBtnElement = opts.upBtnElement;
 
@@ -832,33 +823,31 @@ var BPMMeter = function (opts) {
 inherits(BPMMeter, EventEmitter);
 
 BPMMeter.prototype.setBPM = function (bpm) {
-    var inputElement = this.inputElement;
-    inputElement.innerHTML = bpm;
-
-    this.bpm = bpm;
+    var numElement = this.numElement;
+    numElement.innerHTML = this.bpm = bpm;
     this.emit('change', bpm);
 };
 
 BPMMeter.prototype.initListeners = function () {
     var self = this;
     
-    var inputElement = this.inputElement;
+    var numElement = this.numElement;
     var downBtnElement = this.downBtnElement;
     var upBtnElement = this.upBtnElement;
 
     // click listener
-    inputElement.addEventListener('click', function () {
+    numElement.addEventListener('click', function () {
         self.emit('click');
     }, false);
 
     function bpmDown (e) {
         e.preventDefault();
-        self.setBPM(Number(inputElement.innerHTML) - 1);
+        self.setBPM(Number(numElement.innerHTML) - 1);
     }
 
     function bpmUp (e) {
         e.preventDefault();
-        self.setBPM(Number(inputElement.innerHTML) + 1);
+        self.setBPM(Number(numElement.innerHTML) + 1);
     }
 
     // touch listener
@@ -916,13 +905,44 @@ BPMMeter.prototype.initListeners = function () {
 
 
 
+var Metronom = function () {
+    this.clock = 0;
+    this.prevRest = 0;
+    this.setBPM();
+};
+inherits(Metronom, EventEmitter);
+
+Metronom.prototype.check = function (e) {
+    var time = e.time;
+    var clock = this.clock;
+    var rest = (time % clock) / clock;
+
+    if (rest < this.prevRest) {
+        this.emit('beat');
+    }
+
+    this.prevRest = rest;
+};
+
+Metronom.prototype.setBPM = function (bpm) {
+    bpm = bpm || 0;
+
+    this.bpm = bpm || 0;
+    this.clock = (60 / bpm) * 1000;
+
+    this.emit('change', this.clock);
+};
+
 (function () {
     function init () {
         var viewerElement = document.getElementById('canvas-drip');
 
+        // init metronom
+        var metronom = new Metronom();
+
         // init bpm meter
         var bpmMeter = new BPMMeter({
-            inputElement: document.getElementById('num-bpm'),
+            numElement: document.getElementById('num-bpm'),
             downBtnElement: document.getElementById('btn-bpmdown'),
             upBtnElement: document.getElementById('btn-bpmup')
         });
@@ -938,7 +958,10 @@ BPMMeter.prototype.initListeners = function () {
         // init winstatus
         var winstatus = new Winstatus();
         winstatus.on('resize', function () {
-            dripView.resizeCanvas(winstatus.windowWidth, winstatus.windowHeight);
+            dripView.resizeCanvas(
+                winstatus.windowWidth,
+                winstatus.windowHeight
+            );
         });
 
         // init ticker
@@ -950,13 +973,20 @@ BPMMeter.prototype.initListeners = function () {
         ticker.on('tick', function (e) {
             dripView.draw(e);
         });
-
-        bpmMeter.on('change', function (bpm) {
-            dripView.updateBPM(bpm);
+        ticker.on('tick', function (e) {
+            metronom.check(e);
         });
 
-        dripView.on('beat', function () {
-            metroTones.play(dripView.bpm / 60);
+        metronom.on('change', function (clock) {
+            dripView.updateClock(clock);
+        });
+
+        metronom.on('beat', function () {
+            metroTones.play(metronom.bpm / 60);
+        });
+
+        bpmMeter.on('change', function (bpm) {
+            metronom.setBPM(bpm);
         });
 
         bpmMeter.on('click', function () {

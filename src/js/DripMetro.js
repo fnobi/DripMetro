@@ -2,9 +2,12 @@
     function init () {
         var viewerElement = document.getElementById('canvas-drip');
 
+        // init metronom
+        var metronom = new Metronom();
+
         // init bpm meter
         var bpmMeter = new BPMMeter({
-            inputElement: document.getElementById('num-bpm'),
+            numElement: document.getElementById('num-bpm'),
             downBtnElement: document.getElementById('btn-bpmdown'),
             upBtnElement: document.getElementById('btn-bpmup')
         });
@@ -20,7 +23,10 @@
         // init winstatus
         var winstatus = new Winstatus();
         winstatus.on('resize', function () {
-            dripView.resizeCanvas(winstatus.windowWidth, winstatus.windowHeight);
+            dripView.resizeCanvas(
+                winstatus.windowWidth,
+                winstatus.windowHeight
+            );
         });
 
         // init ticker
@@ -32,13 +38,20 @@
         ticker.on('tick', function (e) {
             dripView.draw(e);
         });
-
-        bpmMeter.on('change', function (bpm) {
-            dripView.updateBPM(bpm);
+        ticker.on('tick', function (e) {
+            metronom.check(e);
         });
 
-        dripView.on('beat', function () {
-            metroTones.play(dripView.bpm / 60);
+        metronom.on('change', function (clock) {
+            dripView.updateClock(clock);
+        });
+
+        metronom.on('beat', function () {
+            metroTones.play(metronom.bpm / 60);
+        });
+
+        bpmMeter.on('change', function (bpm) {
+            metronom.setBPM(bpm);
         });
 
         bpmMeter.on('click', function () {

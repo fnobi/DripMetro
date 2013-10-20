@@ -1,5 +1,5 @@
 var BPMMeter = function (opts) {
-    this.inputElement = opts.inputElement;
+    this.numElement = opts.numElement;
     this.downBtnElement = opts.downBtnElement;
     this.upBtnElement = opts.upBtnElement;
 
@@ -8,33 +8,31 @@ var BPMMeter = function (opts) {
 inherits(BPMMeter, EventEmitter);
 
 BPMMeter.prototype.setBPM = function (bpm) {
-    var inputElement = this.inputElement;
-    inputElement.innerHTML = bpm;
-
-    this.bpm = bpm;
+    var numElement = this.numElement;
+    numElement.innerHTML = this.bpm = bpm;
     this.emit('change', bpm);
 };
 
 BPMMeter.prototype.initListeners = function () {
     var self = this;
     
-    var inputElement = this.inputElement;
+    var numElement = this.numElement;
     var downBtnElement = this.downBtnElement;
     var upBtnElement = this.upBtnElement;
 
     // click listener
-    inputElement.addEventListener('click', function () {
+    numElement.addEventListener('click', function () {
         self.emit('click');
     }, false);
 
     function bpmDown (e) {
         e.preventDefault();
-        self.setBPM(Number(inputElement.innerHTML) - 1);
+        self.setBPM(Number(numElement.innerHTML) - 1);
     }
 
     function bpmUp (e) {
         e.preventDefault();
-        self.setBPM(Number(inputElement.innerHTML) + 1);
+        self.setBPM(Number(numElement.innerHTML) + 1);
     }
 
     // touch listener
