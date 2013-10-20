@@ -54,14 +54,14 @@
             metronom.setBPM(bpm);
         });
 
-        viewerElement.on('click', function () {
+        viewerElement.addEventListener('click', function () {
             if (!ticker.loop) {
                 metroTones.play();
                 ticker.start();
             } else {
                 ticker.stop();
             }
-        });
+        }, false);
 
         // start
         bpmMeter.setBPM(60);
