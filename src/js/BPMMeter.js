@@ -22,6 +22,10 @@ BPMMeter.prototype.initListeners = function () {
     var downBtnElement = this.downBtnElement;
     var upBtnElement = this.upBtnElement;
 
+    // click listener
+    inputElement.addEventListener('click', function () {
+        self.emit('click');
+    }, false);
 
     function bpmDown (e) {
         e.preventDefault();
@@ -33,12 +37,13 @@ BPMMeter.prototype.initListeners = function () {
         self.setBPM(Number(inputElement.innerHTML) + 1);
     }
 
+    // touch listener
     downBtnElement.addEventListener('touchstart', bpmDown, false);
     upBtnElement.addEventListener('touchstart', bpmUp, false);
     downBtnElement.addEventListener('touchmove', bpmDown, false);
     upBtnElement.addEventListener('touchmove', bpmUp, false);
 
-
+    // mouse listener
     var mousedownFlag = false;
     downBtnElement.addEventListener('mousedown', function (e) {
         mousedownFlag = true;

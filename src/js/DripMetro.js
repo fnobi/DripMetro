@@ -41,13 +41,17 @@
             metroTones.play(dripView.bpm / 60);
         });
 
-        viewerElement.addEventListener('click', function () {
-            metroTones.play();
-        }, false);
+        bpmMeter.on('click', function () {
+            if (!ticker.loop) {
+                metroTones.play();
+                ticker.start();
+            } else {
+                ticker.stop();
+            }
+        });
 
         // start
         bpmMeter.setBPM(60);
-        ticker.start();
     }
 
     window.addEventListener('DOMContentLoaded', init, false);

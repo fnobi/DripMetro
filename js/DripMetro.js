@@ -846,6 +846,10 @@ BPMMeter.prototype.initListeners = function () {
     var downBtnElement = this.downBtnElement;
     var upBtnElement = this.upBtnElement;
 
+    // click listener
+    inputElement.addEventListener('click', function () {
+        self.emit('click');
+    }, false);
 
     function bpmDown (e) {
         e.preventDefault();
@@ -857,12 +861,13 @@ BPMMeter.prototype.initListeners = function () {
         self.setBPM(Number(inputElement.innerHTML) + 1);
     }
 
+    // touch listener
     downBtnElement.addEventListener('touchstart', bpmDown, false);
     upBtnElement.addEventListener('touchstart', bpmUp, false);
     downBtnElement.addEventListener('touchmove', bpmDown, false);
     upBtnElement.addEventListener('touchmove', bpmUp, false);
 
-
+    // mouse listener
     var mousedownFlag = false;
     downBtnElement.addEventListener('mousedown', function (e) {
         mousedownFlag = true;
@@ -954,13 +959,17 @@ BPMMeter.prototype.initListeners = function () {
             metroTones.play(dripView.bpm / 60);
         });
 
-        viewerElement.addEventListener('click', function () {
-            metroTones.play();
-        }, false);
+        bpmMeter.on('click', function () {
+            if (!ticker.loop) {
+                metroTones.play();
+                ticker.start();
+            } else {
+                ticker.stop();
+            }
+        });
 
         // start
         bpmMeter.setBPM(60);
-        ticker.start();
     }
 
     window.addEventListener('DOMContentLoaded', init, false);
