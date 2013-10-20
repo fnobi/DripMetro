@@ -729,7 +729,7 @@ MetroTones.prototype.prepare = function () {
     }]);
 };
 
-MetroTones.prototype.play = function () {
+MetroTones.prototype.play = function (speed) {
     if (!this.prepared) {
         return;
     }
@@ -739,6 +739,7 @@ MetroTones.prototype.play = function () {
 
     var source = context.createBufferSource();
     source.buffer = buffer;
+    source.playbackRate.value = speed;
     source.connect(context.destination);
     source.noteOn(0);
 };
@@ -873,7 +874,7 @@ BPMMeter.prototype.initListeners = function () {
 
         // dev: click sound
         document.getElementById('canvas-drip').addEventListener('click', function () {
-            metroTones.play();
+            metroTones.play(1);
         }, false);
 
 
@@ -898,7 +899,7 @@ BPMMeter.prototype.initListeners = function () {
         });
 
         dripView.on('beat', function () {
-            metroTones.play();
+            metroTones.play(dripView.bpm / 60);
         });
 
         // start

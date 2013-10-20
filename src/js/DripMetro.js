@@ -17,7 +17,7 @@
 
         // dev: click sound
         document.getElementById('canvas-drip').addEventListener('click', function () {
-            metroTones.play();
+            metroTones.play(1);
         }, false);
 
 
@@ -42,7 +42,7 @@
         });
 
         dripView.on('beat', function () {
-            metroTones.play();
+            metroTones.play(dripView.bpm / 60);
         });
 
         // start

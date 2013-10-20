@@ -35,7 +35,7 @@ MetroTones.prototype.prepare = function () {
     }]);
 };
 
-MetroTones.prototype.play = function () {
+MetroTones.prototype.play = function (speed) {
     if (!this.prepared) {
         return;
     }
@@ -45,6 +45,7 @@ MetroTones.prototype.play = function () {
 
     var source = context.createBufferSource();
     source.buffer = buffer;
+    source.playbackRate.value = speed;
     source.connect(context.destination);
     source.noteOn(0);
 };
