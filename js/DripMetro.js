@@ -672,61 +672,126 @@ var inherits = function (Child, Parent) {
     exports.Winstatus = Winstatus;
 })(window);
 
-var async = function (fns) {
-    (function exec (index) {
-        if (!fns[index]) {
-            return;
+(function (win) {
+    var ToneMap = function (soundPaths) {
+        this.soundPaths = soundPaths || {};
+        this.initContext();
+    };
+    inherits(ToneMap, EventEmitter);
+
+    ToneMap.prototype.initContext = function () {
+        var AudioContext = getAudioContext();
+        var context = new AudioContext();
+        this.context = context;
+    };
+
+    ToneMap.prototype.load = function () {
+        var self = this;
+
+        var soundPaths = this.soundPaths;
+        var context = this.context;
+
+        var buffers = {};
+
+        var sounds = [];
+        for (var name in soundPaths) {
+            sounds.push({
+                name: name,
+                path: soundPaths[name]
+            });
         }
-        fns[index](function () {
-            exec(index + 1);
+
+        var loaded = 0;
+        function progressLoading () {
+            loaded++;
+            if (sounds.length <= loaded) {
+                self.buffers = buffers;
+                self.emit('load');
+            }
+        }
+
+        sounds.forEach(function (sound) {
+            requestArrayBuffer(sound.path, function (res) {
+                context.decodeAudioData(res, function (buf) {
+                    buffers[sound.name] = buf;
+                    progressLoading();
+                });
+            });
         });
-    })(0);
-};
+    };
 
-var getAudioContext = function () {
-    try {
-        var AudioContext = window.AudioContext || window.webkitAudioContext;
-        return AudioContext;
-    } catch(e) {
-        alert('Web Audio API is not supported in this browser');
-    }
-};
+    ToneMap.prototype.play = function (name, opts) {
+        opts = opts || {};
 
-var MetroTones = function () {
-    var prepared = false;
-    this.prepare();
-};
+        var context = this.context;
+        var buffer = this.buffers[name];
 
-MetroTones.prototype.prepare = function () {
-    var self = this;
+        if (!buffer) {
+            throw Error('buffer "' + name + '" is not found!');
+        }
 
-    var AudioContext = getAudioContext();
-    var context = new AudioContext();
-    var buffer = null;
+        var source = context.createBufferSource();
+        source.buffer = buffer;
+        source.playbackRate.value = opts.playbackRate || 1.0;
+        source.connect(context.destination);
+        source.noteOn(0);
+    };
+    
 
-    var url = '/sounds/tap.wav';
 
-    var request;
+    // short libraries
 
-    async([function (next) {
-        request = new XMLHttpRequest();
-        request.open('GET', url, true);
+    var getAudioContext = function () {
+        try {
+            var AudioContext = window.AudioContext || window.webkitAudioContext;
+            return AudioContext;
+        } catch(e) {
+            alert('Web Audio API is not supported in this browser');
+        }
+    };
+
+    var async = function (fns) {
+        (function exec (index) {
+            if (!fns[index]) {
+                return;
+            }
+            fns[index](function () {
+                exec(index + 1);
+            });
+        })(0);
+    };
+
+    var requestArrayBuffer = function (path, callback) {
+        var request = new XMLHttpRequest();
+        request.open('GET', path, true);
         request.responseType = 'arraybuffer';
         
         request.send();
-        request.onload = next;
-    }, function (next) {
-        context.decodeAudioData(request.response, function (buf) {
-            buffer = buf;
-            next();
-        }, function (e) {
-            alert(e);
-        });
-    }, function () {
-        self.context = context;
-        self.buffer = buffer;
+        request.onload = function () {
+            callback(request.response);
+        };
+    };
+
+    win.ToneMap = ToneMap;
+})(window);
+
+var MetroTones = function () {
+    var prepared = false;
+    this.initToneMap();
+};
+
+MetroTones.prototype.initToneMap = function () {
+    var self = this;
+    var toneMap = new ToneMap({
+        tap: '/sounds/tap.wav'
+    });
+
+    toneMap.on('load', function () {
         self.prepared = true;
-    }]);
+    });
+    toneMap.load();
+
+    this.toneMap = toneMap;
 };
 
 MetroTones.prototype.play = function (speed) {
@@ -736,14 +801,9 @@ MetroTones.prototype.play = function (speed) {
 
     speed = speed || 1.0;
 
-    var context = this.context;
-    var buffer = this.buffer;
-
-    var source = context.createBufferSource();
-    source.buffer = buffer;
-    source.playbackRate.value = speed;
-    source.connect(context.destination);
-    source.noteOn(0);
+    this.toneMap.play('tap', {
+        playbackRate: speed
+    });
 };
 
 

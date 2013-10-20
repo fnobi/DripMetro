@@ -1,38 +1,20 @@
 var MetroTones = function () {
     var prepared = false;
-    this.prepare();
+    this.initToneMap();
 };
 
-MetroTones.prototype.prepare = function () {
+MetroTones.prototype.initToneMap = function () {
     var self = this;
+    var toneMap = new ToneMap({
+        tap: '/sounds/tap.wav'
+    });
 
-    var AudioContext = getAudioContext();
-    var context = new AudioContext();
-    var buffer = null;
-
-    var url = '/sounds/tap.wav';
-
-    var request;
-
-    async([function (next) {
-        request = new XMLHttpRequest();
-        request.open('GET', url, true);
-        request.responseType = 'arraybuffer';
-        
-        request.send();
-        request.onload = next;
-    }, function (next) {
-        context.decodeAudioData(request.response, function (buf) {
-            buffer = buf;
-            next();
-        }, function (e) {
-            alert(e);
-        });
-    }, function () {
-        self.context = context;
-        self.buffer = buffer;
+    toneMap.on('load', function () {
         self.prepared = true;
-    }]);
+    });
+    toneMap.load();
+
+    this.toneMap = toneMap;
 };
 
 MetroTones.prototype.play = function (speed) {
@@ -42,14 +24,9 @@ MetroTones.prototype.play = function (speed) {
 
     speed = speed || 1.0;
 
-    var context = this.context;
-    var buffer = this.buffer;
-
-    var source = context.createBufferSource();
-    source.buffer = buffer;
-    source.playbackRate.value = speed;
-    source.connect(context.destination);
-    source.noteOn(0);
+    this.toneMap.play('tap', {
+        playbackRate: speed
+    });
 };
 
 
