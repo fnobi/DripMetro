@@ -989,7 +989,7 @@ Metronom.prototype.setBPM = function (bpm) {
             metronom.setBPM(bpm);
         });
 
-        bpmMeter.on('click', function () {
+        viewerElement.on('click', function () {
             if (!ticker.loop) {
                 metroTones.play();
                 ticker.start();
