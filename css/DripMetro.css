@@ -70,9 +70,10 @@ article, aside, details, figcaption, figure, footer, header, hgroup, menu, nav, 
   bottom: 0px;
   width: 100%;
   text-align: center;
+  margin: 1em 0em;
 }
 
-/* line 9, ../src/sass/components/_form_bpm.scss */
+/* line 10, ../src/sass/components/_form_bpm.scss */
 #input-bpm {
   display: inline-block;
   -webkit-appearance: none;
