@@ -855,6 +855,8 @@ DripView.prototype.draw = function (e) {
     var dropHeight = value * height * 0.5;
 
     this.clear();
+
+    ctx.fillStyle = '#3fe4fe';
     
     ctx.beginPath();
     ctx.moveTo(0, 0);
@@ -994,6 +996,10 @@ Metronom.prototype.setBPM = function (bpm) {
 };
 
 (function () {
+    var HEADER_HEIGHT = 44;
+    var FOOTER_HEIGHT = 44;
+    var MAX_WIDTH = 320;
+
     function init () {
         var viewerElement = document.getElementById('canvas-drip');
 
@@ -1019,8 +1025,8 @@ Metronom.prototype.setBPM = function (bpm) {
         var winstatus = new Winstatus();
         winstatus.on('resize', function () {
             dripView.resizeCanvas(
-                winstatus.windowWidth,
-                winstatus.windowHeight
+                Math.min(winstatus.windowWidth, MAX_WIDTH),
+                winstatus.windowHeight - HEADER_HEIGHT - FOOTER_HEIGHT
             );
         });
 

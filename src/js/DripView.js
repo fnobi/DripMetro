@@ -41,6 +41,8 @@ DripView.prototype.draw = function (e) {
     var dropHeight = value * height * 0.5;
 
     this.clear();
+
+    ctx.fillStyle = '#3fe4fe';
     
     ctx.beginPath();
     ctx.moveTo(0, 0);

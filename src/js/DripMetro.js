@@ -1,4 +1,8 @@
 (function () {
+    var HEADER_HEIGHT = 44;
+    var FOOTER_HEIGHT = 44;
+    var MAX_WIDTH = 320;
+
     function init () {
         var viewerElement = document.getElementById('canvas-drip');
 
@@ -24,8 +28,8 @@
         var winstatus = new Winstatus();
         winstatus.on('resize', function () {
             dripView.resizeCanvas(
-                winstatus.windowWidth,
-                winstatus.windowHeight
+                Math.min(winstatus.windowWidth, MAX_WIDTH),
+                winstatus.windowHeight - HEADER_HEIGHT - FOOTER_HEIGHT
             );
         });
 

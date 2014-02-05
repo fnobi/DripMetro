@@ -1,3 +1,26 @@
 @import "compass/reset";
 
+$key_color: #3fe4fe;
+
+#wrapper {
+    font-family: sans-serif;
+}
+
+#header {
+    $height: 44px;
+
+    height: $height;
+    background-color: $key_color;
+    h1 {
+        line-height: $height;
+        text-align: center;
+        color: white;
+    }
+}
+
+#canvas-drip {
+    display: block;
+    margin: auto;
+}
+
 @import "components/form_bpm";

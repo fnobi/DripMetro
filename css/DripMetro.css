@@ -63,6 +63,29 @@ article, aside, details, figcaption, figure, footer, header, hgroup, menu, nav, 
   display: block;
 }
 
+/* line 5, ../src/sass/DripMetro.scss */
+#wrapper {
+  font-family: sans-serif;
+}
+
+/* line 9, ../src/sass/DripMetro.scss */
+#header {
+  height: 44px;
+  background-color: #3fe4fe;
+}
+/* line 14, ../src/sass/DripMetro.scss */
+#header h1 {
+  line-height: 44px;
+  text-align: center;
+  color: white;
+}
+
+/* line 21, ../src/sass/DripMetro.scss */
+#canvas-drip {
+  display: block;
+  margin: auto;
+}
+
 /* line 1, ../src/sass/components/_form_bpm.scss */
 #form-bpm {
   font-family: sans-serif;
@@ -70,10 +93,11 @@ article, aside, details, figcaption, figure, footer, header, hgroup, menu, nav, 
   left: 0px;
   bottom: 0px;
   width: 100%;
+  height: 44px;
   text-align: center;
-  margin: 0.5em 0em;
+  background-color: #3fe4fe;
 }
-/* line 13, ../src/sass/components/_form_bpm.scss */
+/* line 15, ../src/sass/components/_form_bpm.scss */
 #form-bpm #num-bpm {
   font-size: 26px;
   display: inline-block;
@@ -81,7 +105,7 @@ article, aside, details, figcaption, figure, footer, header, hgroup, menu, nav, 
   border: none 0px white;
   padding: 0em 1em;
 }
-/* line 23, ../src/sass/components/_form_bpm.scss */
+/* line 25, ../src/sass/components/_form_bpm.scss */
 #form-bpm button {
   font-size: 26px;
 }

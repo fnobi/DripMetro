@@ -7,8 +7,10 @@
     left: 0px;
     bottom: 0px;
     width: 100%;
+    height: 44px;
     text-align: center;
-    margin: 0.5em 0em;
+
+    background-color: $key_color;
 
     #num-bpm {
         font-size: $font_size;
