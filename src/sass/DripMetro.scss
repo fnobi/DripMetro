@@ -1,3 +1,4 @@
+@import "compass";
 @import "compass/reset";
 
 $key_color: #3fe4fe;
@@ -21,6 +22,15 @@ $key_color: #3fe4fe;
 #canvas-drip {
     display: block;
     margin: auto;
+
+    background-image: image-url('bg_pause.png');
+    background-position: center center;
+    background-repeat: no-repeat;
+    @include background-size(160px 185px);
+
+    &.active {
+        background-image: image-url('bg_play.png');
+    }
 }
 
 @import "components/form_bpm";

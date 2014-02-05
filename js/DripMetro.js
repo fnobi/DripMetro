@@ -1059,8 +1059,10 @@ Metronom.prototype.setBPM = function (bpm) {
             if (!ticker.loop) {
                 metroTones.play();
                 ticker.start();
+                viewerElement.className = 'active';
             } else {
                 ticker.stop();
+                viewerElement.className = null;
             }
         }, false);
 

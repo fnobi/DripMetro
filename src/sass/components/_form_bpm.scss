@@ -13,6 +13,7 @@
     background-color: $key_color;
 
     #num-bpm {
+        color: white;
         font-size: $font_size;
 
         display: inline-block;
@@ -24,5 +25,8 @@
 
     button {
         font-size: $font_size; 
+        border-style: none;
+        background-color: transparent;
+        color: white;
     }
 }
