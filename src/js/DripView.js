@@ -38,7 +38,20 @@ DripView.prototype.draw = function (e) {
     var time = e.time;
     var value = (time % clock) / clock;
 
-    var dropHeight = value * height * 0.5;
+    function easing (t) {
+        return t * t * t;
+    }
+
+    var maxHeight = height * 0.1;
+    var dropHeight = (0.5 + 0.5 * -Math.cos(Math.PI * 2 * easing(value))) * maxHeight;
+    var size = 15;
+    var pos;
+
+    if (easing(value) < 0.5) {
+        pos = dropHeight;
+    } else {
+        pos = maxHeight + (easing(value) - 0.5) * 2 * (height - maxHeight);
+    }
 
     this.clear();
 
@@ -56,6 +69,10 @@ DripView.prototype.draw = function (e) {
         width * 0.5,              0,
         width * 1,                0
     );
+    ctx.fill();
+    ctx.beginPath();
+    ctx.moveTo(width * 0.5, pos);
+    ctx.arc(width * 0.5, pos - size + size * 2 * easing(value), size, 0, Math.PI * 2);
     ctx.fill();
 
     this.prevValue = value;
