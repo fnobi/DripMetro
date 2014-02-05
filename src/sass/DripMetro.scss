@@ -23,13 +23,13 @@ $key_color: #3fe4fe;
     display: block;
     margin: auto;
 
-    background-image: image-url('bg_pause.png');
+    background-image: image-url('bg_play.png');
     background-position: center center;
     background-repeat: no-repeat;
     @include background-size(160px 185px);
 
     &.active {
-        background-image: image-url('bg_play.png');
+        background-image: image-url('bg_pause.png');
     }
 }
 

@@ -84,7 +84,7 @@ article, aside, details, figcaption, figure, footer, header, hgroup, menu, nav, 
 #canvas-drip {
   display: block;
   margin: auto;
-  background-image: url('/img/bg_pause.png');
+  background-image: url('/img/bg_play.png');
   background-position: center center;
   background-repeat: no-repeat;
   -webkit-background-size: 160px 185px;
@@ -94,7 +94,7 @@ article, aside, details, figcaption, figure, footer, header, hgroup, menu, nav, 
 }
 /* line 31, ../src/sass/DripMetro.scss */
 #canvas-drip.active {
-  background-image: url('/img/bg_play.png');
+  background-image: url('/img/bg_pause.png');
 }
 
 /* line 1, ../src/sass/components/_form_bpm.scss */
