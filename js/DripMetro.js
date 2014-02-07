@@ -816,6 +816,8 @@ var DripView = function (opts) {
     this.el = opts.el || document.createElement('canvas');
     this.clock = opts.clock || 0;
 
+    this.debugMode = /debug/.test(location.search);
+
     this.width = 0;
     this.height = 0;
 
@@ -852,6 +854,8 @@ DripView.prototype.draw = function (e) {
     var time = e.time;
     var value = (time % clock) / clock;
 
+    var debugMode = this.debugMode;
+
     function easing (t) {
         return t * t * t;
     }
@@ -867,10 +871,12 @@ DripView.prototype.draw = function (e) {
         pos = maxHeight + (easing(value) - 0.5) * 2 * (height - maxHeight);
     }
 
+    pos = pos - size * 2 + size * 2 * easing(value);
+
     this.clear();
 
     ctx.fillStyle = '#3fe4fe';
-    
+
     ctx.beginPath();
     ctx.moveTo(0, 0);
     ctx.bezierCurveTo(
@@ -883,11 +889,40 @@ DripView.prototype.draw = function (e) {
         width * 0.5,              0,
         width * 1,                0
     );
-    ctx.fill();
+    if (debugMode) {
+        ctx.stroke();
+    } else {
+        ctx.fill();
+    }
     ctx.beginPath();
     ctx.moveTo(width * 0.5, pos);
-    ctx.arc(width * 0.5, pos - size + size * 2 * easing(value), size, 0, Math.PI * 2);
-    ctx.fill();
+    ctx.bezierCurveTo(
+        width * 0.5 - size * 0.5, pos + size * 0,
+        width * 0.5 - size * 1,   pos + size * 0.5,
+        width * 0.5 - size * 1,   pos + size * 1
+    );
+    ctx.bezierCurveTo(
+        width * 0.5 - size * 1,   pos + size * 1.5,
+        width * 0.5 - size * 0.5, pos + size * 2,
+        width * 0.5 - size * 0,   pos + size * 2
+    );
+    ctx.bezierCurveTo(
+        width * 0.5 + size * 0.5, pos + size * 2,
+        width * 0.5 + size * 1,   pos + size * 1.5,
+        width * 0.5 + size * 1,   pos + size * 1
+    );
+    ctx.bezierCurveTo(
+        width * 0.5 + size * 1,   pos + size * 0.5,
+        width * 0.5 + size * 0.5, pos + size * 0,
+        width * 0.5 + size * 0,   pos + size * 0
+    );
+
+    // ctx.arc(width * 0.5, pos - size + size * 2 * easing(value), size, 0, Math.PI * 2);
+    if (debugMode) {
+        ctx.stroke();
+    } else {
+        ctx.fill();
+    }
 
     this.prevValue = value;
 };
